@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // Subject — department page. Ported from design_handoff Subject.jsx.
-import { computed } from 'vue'
+import { computed, watchEffect } from 'vue'
+import { useSeo } from '@/composables/useSeo'
 import { useRoute, useRouter } from 'vue-router'
 import { useDriveStore } from '@/stores/drive'
 import { getContributor } from '@/script/design'
@@ -20,6 +21,16 @@ const subject = computed(() => drive.getSubject(String(route.params.id)))
 const papers = computed<Paper[]>(() =>
   subject.value ? drive.papersBySubject(subject.value.id) : [],
 )
+
+// SEO: subject name + live paper count.
+watchEffect(() => {
+  if (!subject.value) return
+  useSeo({
+    title: `${subject.value.name} — notes & past questions`,
+    description: `Browse ${papers.value.length} free ${subject.value.name} papers on Bells Notes: lecture notes, past exams, study guides. No account needed.`,
+    path: `/subject/${subject.value.id}`,
+  })
+})
 
 const isLoading = computed(() => drive.loading && !subject.value)
 

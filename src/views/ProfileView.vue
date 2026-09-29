@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // Profile — public contributor page. Ported from Profile.jsx.
-import { computed, ref } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
+import { useSeo } from '@/composables/useSeo'
 import { useRoute, useRouter } from 'vue-router'
 import { useDriveStore } from '@/stores/drive'
 import { getContributor } from '@/script/design'
@@ -20,6 +21,16 @@ const user = computed(() => getContributor(String(route.params.id)))
 const papers = computed<Paper[]>(() =>
   drive.papers.filter((p) => p.contributor === user.value.id),
 )
+
+// SEO: contributor profile + paper count.
+watchEffect(() => {
+  if (!user.value) return
+  useSeo({
+    title: `${user.value.name} — contributor`,
+    description: `${papers.value.length} papers contributed by ${user.value.name} on Bells Notes. Free to read, no account needed.`,
+    path: `/profile/${user.value.id}`,
+  })
+})
 
 const isLoading = computed(() => drive.loading && drive.papers.length === 0)
 

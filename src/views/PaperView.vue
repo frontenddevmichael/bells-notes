@@ -3,8 +3,9 @@
 // Uses REAL Drive data: iframe preview via paper.previewUrl, real download URL.
 // Discussion = real comments over Convex (query + subscribe) + real vote
 // counts persisted in the metrics table (upvotes AND downvotes).
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useSeo } from '@/composables/useSeo'
 import { useDriveStore } from '@/stores/drive'
 import { getContributor, formatCount, timeAgo } from '@/script/design'
 import type { Paper } from '@/script/design'
@@ -23,6 +24,27 @@ const paper = computed<Paper | undefined>(() => drive.getPaper(String(route.para
 const contributor = computed(() => (paper.value ? getContributor(paper.value.contributor) : undefined))
 const subject = computed(() => (paper.value ? drive.getSubject(paper.value.subject) : undefined))
 const isLoading = computed(() => drive.loading && !paper.value)
+
+// SEO: real paper title/description + ScholarlyArticle JSON-LD once loaded.
+watchEffect(() => {
+  if (!paper.value) return
+  const p = paper.value
+  useSeo({
+    title: p.title,
+    description: `${p.type} · ${p.subjectName} · ${p.year} · ${p.pages} pages — free on Bells Notes.`,
+    path: `/paper/${p.id}`,
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'ScholarlyArticle',
+      name: p.title,
+      articleSection: p.subjectName,
+      datePublished: String(p.year),
+      numberOfPages: p.pages,
+      author: { '@type': 'Person', name: p.contributorName },
+      isAccessibleForFree: true,
+    },
+  })
+})
 
 onMounted(() => {
   if (paper.value) drive.recordMetric(paper.value.id, 'reads')
