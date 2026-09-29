@@ -129,13 +129,12 @@ const moderators = computed(() => {
 }
 .hero-title {
   font-family: var(--font-heading);
-  font-style: italic;
   font-size: clamp(36px, 8vw, 72px);
   line-height: 1;
   margin: 0;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.033em;
   color: var(--text-primary);
-  font-weight: 500;
+  font-weight: 700;
   text-wrap: balance;
 }
 .hero-sub {
@@ -176,7 +175,7 @@ const moderators = computed(() => {
   padding-top: 20px;
 }
 .rule.bordered {
-  border-top: 1px solid var(--border-default);
+  border-top: 0.5px solid var(--rule);
 }
 .rule-label {
   font-family: var(--font-mono);
@@ -200,8 +199,8 @@ const moderators = computed(() => {
 .moderators-card {
   margin-top: 72px;
   padding: 32px;
-  border: 1px solid var(--border-default);
-  border-radius: 6px;
+  border: 0.5px solid var(--rule);
+  border-radius: var(--r-sm);
   background: var(--bg-elevated);
 }
 .mod-grid {

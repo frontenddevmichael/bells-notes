@@ -47,9 +47,9 @@ const iframeSrc = computed(() => props.src || props.paper.previewUrl)
 <style scoped>
 .pdf-preview {
   background: var(--bg-pdf);
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-  border: 1px solid var(--border-default);
+  border: 0.5px solid var(--rule);
   overflow: hidden;
   position: relative;
 }
@@ -102,7 +102,7 @@ const iframeSrc = computed(() => props.src || props.paper.previewUrl)
   height: 8px;
   background: var(--text-primary);
   opacity: 0.09;
-  border-radius: 2px;
+  border-radius: var(--r-xs);
 }
 .mock-flex {
   flex: 1;
@@ -112,7 +112,7 @@ const iframeSrc = computed(() => props.src || props.paper.previewUrl)
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--text-quiet);
-  border-top: 1px solid var(--border-default);
+  border-top: 0.5px solid var(--rule);
   padding-top: 12px;
 }
 </style>

@@ -61,15 +61,15 @@ const subjectLabel = computed(() => props.paper.subjectName || 'Notes')
     box-shadow var(--dur-med) var(--ease-out);
 }
 .index-stack:hover {
-  transform: translateY(-6px) rotate(-0.5deg);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-8px) rotate(-0.6deg);
 }
 .card-back {
   position: absolute;
   inset: 0;
-  border: 1px solid var(--border-strong);
-  border-radius: 10px;
-  background: var(--bg-default);
+  border: none;
+  border-radius: 14px;
+  background: var(--paper-2);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
 }
 .card-back-2 {
   transform: rotate(4deg) translateY(2px);
@@ -80,14 +80,26 @@ const subjectLabel = computed(() => props.paper.subjectName || 'Notes')
 .card-front {
   position: relative;
   z-index: 2;
-  border: 1px solid var(--border-default);
-  border-radius: 10px;
+  border: none;
+  border-radius: 14px;
   background: var(--bg-elevated);
   padding: var(--cover-pad);
   display: flex;
   flex-direction: column;
   height: 100%;
-  box-shadow: var(--shadow-soft);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 2px 6px rgba(0, 0, 0, 0.05),
+    0 12px 32px rgba(0, 0, 0, 0.12);
+}
+/* Paper sheen — top-left light catching the sheet */
+.card-front::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0) 34%);
+  pointer-events: none;
 }
 .front-rule-top,
 .front-rule-bottom {
@@ -131,5 +143,16 @@ const subjectLabel = computed(() => props.paper.subjectName || 'Notes')
   font-family: var(--font-mono);
   letter-spacing: 0.06em;
   color: var(--text-tertiary);
+}
+
+/* Hover gets the paper to "float" — shadow grows under it */
+.index-stack .card-front {
+  transition: box-shadow var(--dur-med) var(--ease-out);
+}
+.index-stack:hover .card-front {
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    0 24px 48px rgba(0, 0, 0, 0.14),
+    0 8px 16px rgba(0, 0, 0, 0.08);
 }
 </style>

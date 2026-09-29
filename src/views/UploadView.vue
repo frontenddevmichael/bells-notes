@@ -63,8 +63,8 @@ const router = useRouter()
 .paused-card {
   margin-top: 40px;
   padding: 32px;
-  border: 1px solid var(--border-default);
-  border-radius: 8px;
+  border: 0.5px solid var(--rule);
+  border-radius: 12px;
   background: var(--bg-elevated);
 }
 .paused-icon {

@@ -153,7 +153,7 @@ function openPaper(p: Paper) {
 <style scoped>
 .hero {
   background: var(--bg-default);
-  border-bottom: 1px solid var(--border-default);
+  border-bottom: 0.5px solid var(--rule);
   padding: 64px 0 48px;
 }
 .wrap {
@@ -224,8 +224,8 @@ function openPaper(p: Paper) {
   align-items: center;
   gap: 14px;
   padding: 14px 16px;
-  border: 1px solid var(--border-default);
-  border-radius: 6px;
+  border: 0.5px solid var(--rule);
+  border-radius: var(--r-sm);
   background: var(--bg-elevated);
   cursor: pointer;
   text-align: left;
@@ -238,7 +238,7 @@ function openPaper(p: Paper) {
   width: 3px;
   height: 28px;
   background: var(--text-primary);
-  border-radius: 2px;
+  border-radius: var(--r-xs);
   flex-shrink: 0;
 }
 .course-name {
@@ -274,8 +274,8 @@ function openPaper(p: Paper) {
   align-items: flex-start;
   gap: 8px;
   padding: 20px;
-  border: 1px solid var(--border-default);
-  border-radius: 6px;
+  border: 0.5px solid var(--rule);
+  border-radius: var(--r-sm);
   background: var(--bg-elevated);
   cursor: pointer;
   text-align: left;
@@ -313,7 +313,7 @@ function openPaper(p: Paper) {
   position: relative;
   overflow: hidden;
   background: var(--bg-elevated);
-  border-radius: 4px;
+  border-radius: var(--r-sm);
 }
 .sk::after {
   content: '';

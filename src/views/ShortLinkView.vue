@@ -74,7 +74,7 @@ onMounted(async () => {
 .short-btn {
   margin-top: 28px;
   padding: 10px 22px;
-  border-radius: 8px;
+  border-radius: 12px;
   background: var(--text-primary);
   color: var(--bg-default);
   font-size: 14px;

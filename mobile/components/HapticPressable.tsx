@@ -22,7 +22,7 @@
 // double-buzz.
 import { forwardRef, useCallback, type ComponentProps } from 'react';
 import { Pressable } from 'react-native';
-import {
+import Animated, {
   createAnimatedComponent,
   useAnimatedStyle,
   useSharedValue,
@@ -67,6 +67,25 @@ const HapticPressable = forwardRef<unknown, HapticPressableProps>(function Hapti
     },
     [scale, onPressOut],
   );
+
+  // Entrance/layout animations must live on a wrapper View — if they share
+  // the AnimatedComponent with the press-scale transform, Reanimated warns
+  // the layout animation can overwrite `transform`. Only callers passing
+  // entering/exiting/layout pay for the wrapper (layout-neutral in column
+  // flows, which is every current caller).
+  if (entering || exiting || layout) {
+    return (
+      <Animated.View entering={entering} exiting={exiting} layout={layout}>
+        <AnimatedPressable
+          ref={ref as never}
+          {...rest}
+          style={[style, animatedStyle]}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+        />
+      </Animated.View>
+    );
+  }
 
   return (
     <AnimatedPressable

@@ -126,7 +126,7 @@ function openPaper(p: Paper) {
 <style scoped>
 .hero {
   background: var(--bg-default);
-  border-bottom: 1px solid var(--border-default);
+  border-bottom: 0.5px solid var(--rule);
   padding: 56px 0 40px;
 }
 .wrap {
@@ -182,7 +182,7 @@ function openPaper(p: Paper) {
 .tabs {
   display: flex;
   gap: 4px;
-  border-bottom: 1px solid var(--border-default);
+  border-bottom: 0.5px solid var(--rule);
   margin-bottom: 32px;
 }
 .tab {
@@ -212,8 +212,8 @@ function openPaper(p: Paper) {
 }
 .empty-slot {
   aspect-ratio: 2 / 3;
-  border: 1px dashed var(--border-strong);
-  border-radius: 4px;
+  background: var(--paper-2);
+  border-radius: var(--r-sm);
   display: grid;
   place-items: center;
   color: var(--text-tertiary);
@@ -226,8 +226,8 @@ function openPaper(p: Paper) {
 .about-card {
   padding: 32px;
   background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
-  border-radius: 6px;
+  border: 0.5px solid var(--rule);
+  border-radius: var(--r-sm);
   font-size: 15px;
   line-height: 1.65;
   color: var(--text-primary);

@@ -4,7 +4,7 @@
 
 withDefaults(
   defineProps<{ name: string; size?: number | string; strokeWidth?: number }>(),
-  { size: 18, strokeWidth: 1.5 },
+  { size: 18, strokeWidth: 1.8 },
 )
 
 const paths: Record<string, string> = {
@@ -47,6 +47,11 @@ const paths: Record<string, string> = {
   refresh: '<path d="M19 12a7 7 0 1 1-2-5"/><path d="M19 5v4h-4"/>',
   sun: '<circle cx="12" cy="12" r="3.5"/><path d="M12 2.5v2m0 15v2M4.9 4.9l1.5 1.5m11.2 11.2 1.5 1.5M2.5 12h2m15 0h2M4.9 19.1l1.5-1.5m11.2-11.2 1.5-1.5"/>',
   moon: '<path d="M20 12.5A8.5 8.5 0 1 1 11.5 4a6.5 6.5 0 0 0 8.5 8.5z"/>',
+  zap: '<path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/>',
+  command: '<path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0 3-3"/>',
+  layers: '<path d="m12 3 9 5-9 5-9-5 9-5z"/><path d="m3 13 9 5 9-5"/>',
+  compass: '<circle cx="12" cy="12" r="9"/><path d="m15 9-2.5 5.5L9 17l2.5-5.5L15 9z"/>',
+  flame: '<path d="M12 3s-5 4.5-5 9a5 5 0 0 0 10 0c0-1.5-.5-3-1.5-4.5-.5 1-1 1.5-2 2C13.5 7.5 13 5 12 3z"/>',
 }
 </script>
 

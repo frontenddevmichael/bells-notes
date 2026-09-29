@@ -79,13 +79,17 @@ const stack = computed(() => {
   z-index: 2;
 }
 .hero-404 {
-  font-family: var(--font-mono);
-  font-size: clamp(56px, 10vw, 80px);
+  font-family: var(--font-heading);
+  font-size: clamp(72px, 13vw, 120px);
   color: var(--text-primary);
   line-height: 1;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   font-weight: 700;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.045em;
+  background: linear-gradient(180deg, var(--text-primary) 30%, var(--text-quiet));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 .title {
   font-size: clamp(24px, 4vw, 36px);

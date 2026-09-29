@@ -237,7 +237,11 @@ async function postDiscussion(): Promise<void> {
 </script>
 
 <template>
+  <div class="paper-root">
   <div v-if="paper" class="screen-wrap paper">
+    <!-- Ambient glow behind the header band -->
+    <div class="hero-glow" aria-hidden="true" />
+
     <!-- Breadcrumb -->
     <div class="breadcrumb">
       <button class="crumb" @click="router.push({ name: 'browse' })">Library</button>
@@ -254,7 +258,7 @@ async function postDiscussion(): Promise<void> {
     </div>
 
     <!-- Header -->
-    <div class="header">
+    <div class="header rise" style="--stagger: 40ms">
       <IndexStack :paper="paper" size="lg" />
 
       <div class="header-main">
@@ -290,7 +294,7 @@ async function postDiscussion(): Promise<void> {
         </div>
       </div>
 
-      <!-- Actions -->
+      <!-- Actions — frosted floating card -->
       <div class="actions">
         <button class="btn btn-primary action-download" @click="download">
           <Icon name="download" :size="16" /> Download PDF
@@ -318,7 +322,7 @@ async function postDiscussion(): Promise<void> {
 
     <!-- Body -->
     <div class="body">
-      <div class="main-col">
+      <div class="main-col rise" style="--stagger: 120ms">
         <!-- Tabs -->
         <div class="tabs">
           <button
@@ -418,7 +422,7 @@ async function postDiscussion(): Promise<void> {
       </div>
 
       <!-- Sidebar -->
-      <aside class="side-col">
+      <aside class="side-col rise" style="--stagger: 200ms">
         <div class="details-card">
           <div class="smallcaps" style="margin-bottom: 14px">Details</div>
           <div v-for="[k, v] in details" :key="k" class="detail-row">
@@ -463,13 +467,57 @@ async function postDiscussion(): Promise<void> {
     <div class="no-title">Paper not found.</div>
     <button class="btn btn-secondary" @click="router.push({ name: 'browse' })">Browse the library</button>
   </div>
+  </div>
 </template>
 
 <style scoped>
+.paper-root {
+  /* Single root for the app-level page transition. */
+  position: relative;
+}
 .paper {
   max-width: var(--max-content);
   margin: 0 auto;
   padding: 40px 32px;
+}
+
+/* Shared entrance (matches HomeView) */
+.rise {
+  animation: rise-in 640ms var(--ease-out) both;
+  animation-delay: var(--stagger, 0ms);
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none;
+  }
+}
+
+/* Ambient glow — mirrors the Home hero field */
+.hero-glow {
+  position: absolute;
+  top: -160px;
+  left: 50%;
+  width: 560px;
+  height: 460px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(120, 119, 255, 0.13), transparent 62%);
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: -1;
+}
+html.dark .hero-glow {
+  background: radial-gradient(circle, rgba(120, 119, 255, 0.18), transparent 62%);
 }
 .breadcrumb {
   display: flex;
@@ -506,16 +554,17 @@ async function postDiscussion(): Promise<void> {
 .tags {
   display: flex;
   gap: 6px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   flex-wrap: wrap;
 }
 .title {
-  font-size: clamp(30px, 4.5vw, 44px);
+  font-family: var(--font-heading);
+  font-size: clamp(30px, 4.5vw, 46px);
   line-height: 1.05;
   margin: 0;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.033em;
   color: var(--text-primary);
-  font-weight: 500;
+  font-weight: 700;
   text-wrap: balance;
 }
 .subtitle {
@@ -558,14 +607,25 @@ async function postDiscussion(): Promise<void> {
   color: var(--text-secondary);
 }
 
+/* Actions — frosted floating card (matches the search dock / nav capsule) */
 .actions {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  min-width: 220px;
+  min-width: 224px;
+  padding: 14px;
+  border-radius: var(--r-lg);
+  background: var(--material);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border: var(--hairline);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 12px 32px rgba(0, 0, 0, 0.08);
+  align-self: start;
 }
 .action-download {
-  padding: 12px 20px;
+  padding: 13px 20px;
   justify-content: center;
 }
 .action-pair {
@@ -576,19 +636,19 @@ async function postDiscussion(): Promise<void> {
   flex: 1;
   justify-content: center;
   padding: 10px;
+  background: var(--bg-elevated);
 }
 .btn.is-saved {
-  border-color: var(--text-primary);
-  background: var(--bg-default);
+  box-shadow: inset 0 0 0 1.5px var(--text-primary);
 }
 .vote-group {
   display: flex;
   align-items: center;
   gap: 2px;
-  border: 1px solid var(--border-strong);
-  border-radius: 4px;
+  border-radius: 980px;
   padding: 4px;
   margin-top: 4px;
+  background: var(--paper-2);
 }
 .vote-up {
   flex: 1;
@@ -597,7 +657,7 @@ async function postDiscussion(): Promise<void> {
   justify-content: center;
   gap: 6px;
   padding: 8px;
-  border-radius: 3px;
+  border-radius: var(--r-xs);
   font-family: var(--font-mono);
   font-size: 13px;
   font-weight: 500;
@@ -615,7 +675,7 @@ async function postDiscussion(): Promise<void> {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 3px;
+  border-radius: var(--r-xs);
   color: var(--text-secondary);
   background: transparent;
   cursor: pointer;
@@ -636,41 +696,53 @@ async function postDiscussion(): Promise<void> {
   gap: 40px;
 }
 
-/* Tabs */
+/* Tabs — iOS segmented control (matches the nav) */
 .tabs {
-  display: flex;
-  gap: 4px;
-  border-bottom: 1px solid var(--border-default);
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 980px;
+  background: var(--paper-2);
   margin-bottom: 24px;
 }
 .tab {
-  padding: 12px 16px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-quiet);
+  padding: 8px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-secondary);
   background: none;
   border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
+  border-radius: 980px;
   cursor: pointer;
   white-space: nowrap;
-  transition: color var(--dur-fast);
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
 }
 .tab:hover {
   color: var(--text-primary);
 }
 .tab.active {
   color: var(--text-primary);
-  border-bottom-color: var(--text-primary);
+  background: var(--bg-elevated);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-/* Preview */
+/* Preview — shadow-built frame, no border */
 .preview-frame {
-  background: var(--bg-default);
-  border: 1px solid var(--border-default);
-  border-radius: 6px;
+  background: var(--bg-elevated);
+  border: none;
+  border-radius: var(--r-lg);
   padding: 32px;
   position: relative;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 8px 28px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
 }
 .page-nav {
   position: absolute;
@@ -709,10 +781,13 @@ async function postDiscussion(): Promise<void> {
   gap: 16px;
 }
 .cite-card {
-  border: 1px solid var(--border-default);
-  border-radius: 6px;
+  border: none;
+  border-radius: var(--r-md);
   padding: 20px;
   background: var(--bg-elevated);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 14px rgba(0, 0, 0, 0.05);
 }
 .cite-head {
   display: flex;
@@ -742,9 +817,12 @@ async function postDiscussion(): Promise<void> {
   gap: 12px;
   margin-bottom: 24px;
   padding: 16px;
-  border: 1px solid var(--border-default);
-  border-radius: 6px;
+  border: none;
+  border-radius: var(--r-md);
   background: var(--bg-elevated);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 14px rgba(0, 0, 0, 0.05);
 }
 .composer-main {
   flex: 1;
@@ -786,7 +864,7 @@ async function postDiscussion(): Promise<void> {
   display: flex;
   gap: 12px;
   padding: 16px 4px;
-  border-bottom: 1px solid var(--border-default);
+  border-bottom: 0.5px solid var(--rule);
 }
 .comment-main {
   flex: 1;
@@ -828,15 +906,15 @@ async function postDiscussion(): Promise<void> {
 }
 .sk-line {
   height: 12px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
 }
 .comments-empty {
-  padding: 32px 4px;
+  padding: 40px 4px;
   color: var(--text-quiet);
   font-size: 14px;
   text-align: center;
-  border: 1px dashed var(--border-strong);
-  border-radius: 6px;
+  background: var(--paper-2);
+  border-radius: var(--r-md);
 }
 .post-notice {
   display: flex;
@@ -844,9 +922,9 @@ async function postDiscussion(): Promise<void> {
   gap: 8px;
   margin-bottom: 20px;
   padding: 12px 14px;
-  border: 1px solid var(--border-default);
-  border-radius: 6px;
-  background: var(--bg-elevated);
+  border: none;
+  border-radius: var(--r-md);
+  background: var(--paper-2);
   color: var(--text-secondary);
   font-size: 13px;
   line-height: 1.5;
@@ -859,7 +937,7 @@ async function postDiscussion(): Promise<void> {
   position: relative;
   overflow: hidden;
   background: var(--bg-elevated);
-  border-radius: 4px;
+  border-radius: var(--r-sm);
 }
 .sk::after {
   content: '';
@@ -871,7 +949,7 @@ async function postDiscussion(): Promise<void> {
 .sk-cover-lg {
   width: 180px;
   aspect-ratio: 2 / 3;
-  border-radius: 2px 6px 6px 2px;
+  border-radius: var(--r-xs) 6px 6px 2px;
 }
 .paper-loading {
   display: flex;
@@ -890,20 +968,23 @@ async function postDiscussion(): Promise<void> {
   padding-bottom: 40px;
 }
 
-/* Sidebar */
+/* Sidebar — shadow-built cards */
 .details-card {
-  border: 1px solid var(--border-default);
-  border-radius: 6px;
+  border: none;
+  border-radius: var(--r-md);
   padding: 20px;
   margin-bottom: 24px;
   background: var(--bg-elevated);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 14px rgba(0, 0, 0, 0.05);
 }
 .detail-row {
   display: flex;
   justify-content: space-between;
   padding: 8px 0;
   font-size: 13px;
-  border-bottom: 1px solid var(--border-default);
+  border-bottom: 0.5px solid var(--rule);
 }
 .detail-row:last-child {
   border-bottom: none;
@@ -925,7 +1006,7 @@ async function postDiscussion(): Promise<void> {
   display: flex;
   gap: 10px;
   padding: 10px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   cursor: pointer;
   background: none;
   border: none;
@@ -933,7 +1014,7 @@ async function postDiscussion(): Promise<void> {
   transition: background var(--dur-fast);
 }
 .related-row:hover {
-  background: var(--bg-default);
+  background: var(--paper-2);
 }
 .related-main {
   flex: 1;
@@ -975,6 +1056,9 @@ async function postDiscussion(): Promise<void> {
     flex-direction: row;
     flex-wrap: wrap;
     min-width: 0;
+  }
+  .actions .action-download {
+    flex: 1;
   }
   .body {
     grid-template-columns: 1fr;

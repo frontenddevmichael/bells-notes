@@ -111,6 +111,9 @@ const breadcrumb = computed(() => {
 
 <template>
   <div class="browse">
+    <!-- Ambient glow -->
+    <div class="hero-glow" aria-hidden="true" />
+
     <!-- Header with back -->
     <div class="browse-header">
       <button v-if="selectedCollege" class="back-btn" @click="goBack">
@@ -134,11 +137,13 @@ const breadcrumb = computed(() => {
 
     <!-- Level picker -->
     <template v-else-if="selectedCollege && selectedProgram && !selectedLevel">
+      <div class="tier-label"><Icon name="layers" :size="13" /> Pick a level</div>
       <div class="level-grid">
         <button
-          v-for="level in levels"
+          v-for="(level, i) in levels"
           :key="level"
           class="level-card"
+          :style="{ '--card-delay': 40 * i + 'ms' }"
           @click="selectLevel(level)"
         >
           <div class="level-num">{{ level }}</div>
@@ -149,30 +154,42 @@ const breadcrumb = computed(() => {
 
     <!-- Program picker -->
     <template v-else-if="selectedCollege && !selectedProgram">
+      <div class="tier-label"><Icon name="books" :size="13" /> Programs in {{ selectedCollege.replace(/\s*\([^)]*\)\s*$/, '') }}</div>
       <div class="program-grid">
         <button
-          v-for="prog in programs"
+          v-for="(prog, i) in programs"
           :key="prog.name"
           class="program-card"
+          :style="{ '--card-delay': 40 * i + 'ms' }"
           @click="selectProgram(prog.name)"
         >
-          <div class="program-name">{{ prog.name }}</div>
-          <div class="program-levels">{{ prog.levels.size }} levels</div>
+          <div class="program-icon"><Icon name="layers" :size="17" /></div>
+          <div class="program-body">
+            <div class="program-name">{{ prog.name }}</div>
+            <div class="program-levels">{{ prog.levels.size }} levels</div>
+          </div>
+          <Icon name="chevron" :size="15" class="card-arrow" />
         </button>
       </div>
     </template>
 
     <!-- College picker -->
     <template v-else-if="!selectedCollege">
+      <div class="tier-label"><Icon name="compass" :size="13" /> Choose a college</div>
       <div class="college-grid">
         <button
-          v-for="college in colleges"
+          v-for="(college, i) in colleges"
           :key="college.name"
           class="college-card"
+          :style="{ '--card-delay': 40 * i + 'ms' }"
           @click="selectCollege(college.name)"
         >
-          <div class="college-name">{{ college.name }}</div>
-          <div class="college-programs">{{ college.programs.size }} programs</div>
+          <div class="college-icon"><Icon name="books" :size="19" /></div>
+          <div class="college-body">
+            <div class="college-name">{{ college.name }}</div>
+            <div class="college-programs">{{ college.programs.size }} programs</div>
+          </div>
+          <Icon name="chevron" :size="16" class="card-arrow" />
         </button>
       </div>
     </template>
@@ -180,13 +197,14 @@ const breadcrumb = computed(() => {
     <!-- Papers list (when at leaf level) -->
     <template v-else>
       <div class="papers-header">
-        <span class="papers-count">{{ filteredPapers.length }} papers</span>
+        <span class="papers-count"><Icon name="file" :size="13" /> {{ filteredPapers.length }} papers</span>
       </div>
       <div class="papers-grid">
         <div
-          v-for="p in filteredPapers"
+          v-for="(p, i) in filteredPapers"
           :key="p.id"
           class="paper-row"
+          :style="{ '--card-delay': 30 * Math.min(i, 10) + 'ms' }"
           @click="openPaper(p)"
         >
           <IndexStack :paper="p" size="xs" />
@@ -209,14 +227,68 @@ const breadcrumb = computed(() => {
 
 <style scoped>
 .browse {
+  position: relative;
   max-width: 960px;
   margin: 0 auto;
   padding: 32px;
-  animation: fade-in var(--dur-med) var(--ease-out);
 }
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+
+/* Ambient glow — mirrors Home/Paper hero field */
+.hero-glow {
+  position: absolute;
+  top: -180px;
+  left: 50%;
+  width: 560px;
+  height: 420px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(120, 119, 255, 0.12), transparent 62%);
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: -1;
+}
+html.dark .hero-glow {
+  background: radial-gradient(circle, rgba(120, 119, 255, 0.17), transparent 62%);
+}
+
+/* Staggered card entrance */
+.college-card,
+.program-card,
+.level-card,
+.paper-row {
+  animation: rise-in 480ms var(--ease-out) both;
+  animation-delay: var(--card-delay, 0ms);
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .college-card,
+  .program-card,
+  .level-card,
+  .paper-row {
+    animation: none;
+  }
+}
+
+/* Tier label — smallcaps with icon */
+.tier-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  margin-bottom: 16px;
 }
 
 .browse-header {
@@ -240,9 +312,10 @@ const breadcrumb = computed(() => {
   background: var(--bg-default);
 }
 .browse-title {
-  font-size: 28px;
-  font-weight: 600;
-  letter-spacing: -0.03em;
+  font-family: var(--font-heading);
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.033em;
   color: var(--text-primary);
   margin: 0;
 }
@@ -276,34 +349,72 @@ const breadcrumb = computed(() => {
   color: var(--text-quiet);
 }
 
-/* College grid */
+/* College grid — shadow-built cards, no borders */
 .college-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
 }
 .college-card {
-  padding: 24px;
-  background: var(--bg-default);
-  border: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  background: var(--bg-elevated);
+  border: none;
   border-radius: var(--r-lg);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 14px rgba(0, 0, 0, 0.05);
   text-align: left;
   cursor: pointer;
-  transition: all var(--dur-fast) var(--ease-out);
+  transition:
+    transform var(--dur-fast) var(--ease-spring),
+    box-shadow var(--dur-med) var(--ease-out);
 }
 .college-card:hover {
-  background: var(--bg-elevated);
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.01);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    0 16px 36px rgba(0, 0, 0, 0.1);
+}
+.college-card:active {
+  transform: scale(0.98);
+}
+.college-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--paper-2);
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+.college-body {
+  flex: 1;
+  min-width: 0;
 }
 .college-name {
-  font-size: 16px;
+  font-size: 15.5px;
   font-weight: 600;
+  letter-spacing: -0.015em;
   color: var(--text-primary);
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 .college-programs {
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--text-tertiary);
+}
+.card-arrow {
+  color: var(--text-quiet);
+  flex-shrink: 0;
+  transition: transform var(--dur-fast) var(--ease-out), color var(--dur-fast);
+}
+.college-card:hover .card-arrow,
+.program-card:hover .card-arrow {
+  transform: translateX(3px);
+  color: var(--text-primary);
 }
 
 /* Program grid */
@@ -313,63 +424,109 @@ const breadcrumb = computed(() => {
   gap: 12px;
 }
 .program-card {
-  padding: 20px;
-  background: var(--bg-default);
-  border: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--bg-elevated);
+  border: none;
   border-radius: var(--r-lg);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 14px rgba(0, 0, 0, 0.05);
   text-align: left;
   cursor: pointer;
-  transition: all var(--dur-fast) var(--ease-out);
+  transition:
+    transform var(--dur-fast) var(--ease-spring),
+    box-shadow var(--dur-med) var(--ease-out);
 }
 .program-card:hover {
-  background: var(--bg-elevated);
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.01);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    0 16px 36px rgba(0, 0, 0, 0.1);
+}
+.program-card:active {
+  transform: scale(0.98);
+}
+.program-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--paper-2);
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+.program-body {
+  flex: 1;
+  min-width: 0;
 }
 .program-name {
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 .program-levels {
   font-size: 12px;
   color: var(--text-tertiary);
 }
 
-/* Level grid */
+/* Level grid — oversized numerals, hover inverts like iOS */
 .level-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
 }
 .level-card {
-  padding: 20px;
-  background: var(--bg-default);
-  border: 1px solid var(--border-default);
+  padding: 22px 20px;
+  background: var(--bg-elevated);
+  border: none;
   border-radius: var(--r-lg);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 14px rgba(0, 0, 0, 0.05);
   text-align: center;
   cursor: pointer;
-  transition: all var(--dur-fast) var(--ease-out);
+  transition:
+    transform var(--dur-fast) var(--ease-spring),
+    background-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out);
 }
 .level-card:hover {
   background: var(--text-primary);
-  color: var(--bg-default);
-  border-color: var(--text-primary);
+  transform: translateY(-3px);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    0 16px 36px rgba(0, 0, 0, 0.12);
+}
+.level-card:active {
+  transform: scale(0.97);
 }
 .level-num {
-  font-size: 24px;
+  font-size: 30px;
   font-weight: 700;
   font-family: var(--font-mono);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 .level-label {
-  font-size: 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
   color: var(--text-tertiary);
   margin-top: 4px;
+  transition: color var(--dur-fast);
 }
 .level-card:hover .level-label {
-  color: var(--bg-default);
+  color: var(--bg-elevated);
   opacity: 0.7;
+}
+.level-card:hover .level-num {
+  color: var(--bg-elevated);
 }
 
 /* Papers */
@@ -377,9 +534,15 @@ const breadcrumb = computed(() => {
   margin-bottom: 16px;
 }
 .papers-count {
-  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
   color: var(--text-tertiary);
   font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
 }
 .papers-grid {
   display: flex;
@@ -390,13 +553,16 @@ const breadcrumb = computed(() => {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 12px;
-  border-radius: 10px;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
   cursor: pointer;
-  transition: background var(--dur-fast);
+  transition:
+    background var(--dur-fast),
+    transform var(--dur-fast) var(--ease-out);
 }
 .paper-row:hover {
-  background: var(--bg-default);
+  background: var(--paper-2);
+  transform: translateX(2px);
 }
 .paper-info {
   flex: 1;
@@ -428,8 +594,8 @@ const breadcrumb = computed(() => {
   padding: 48px;
   text-align: center;
   color: var(--text-tertiary);
-  border: 1px dashed var(--border-default);
-  border-radius: 10px;
+  background: var(--paper-2);
+  border-radius: var(--r-md);
 }
 
 @media (max-width: 720px) {

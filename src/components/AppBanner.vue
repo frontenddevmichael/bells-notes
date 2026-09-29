@@ -29,15 +29,19 @@ function close() {
 
 <style scoped>
 .banner {
-  height: 32px;
-  background: var(--text-primary);
-  color: var(--bg-default);
+  height: var(--banner-h);
+  background: var(--material-strong);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  color: var(--text-primary);
+  border-bottom: var(--hairline);
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 0 16px;
   position: relative;
   z-index: 60;
+  font-size: 12.5px;
 }
 .dot {
   width: 6px;
@@ -56,29 +60,33 @@ function close() {
   white-space: nowrap;
 }
 .muted {
-  opacity: 0.55;
+  color: var(--text-secondary);
 }
 .how {
-  opacity: 0.9;
+  color: var(--text-primary);
+  font-weight: 600;
   cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration: none;
   white-space: nowrap;
+  transition: opacity var(--dur-fast);
 }
 .how:hover {
-  opacity: 1;
+  opacity: 0.65;
 }
 .close {
   margin-left: auto;
-  color: var(--bg-default);
-  opacity: 0.5;
+  color: var(--text-tertiary);
   display: grid;
   place-items: center;
   padding: 4px;
-  border-radius: 4px;
+  border-radius: 50%;
+  transition:
+    color var(--dur-fast),
+    background-color var(--dur-fast);
 }
 .close:hover {
-  opacity: 1;
+  color: var(--text-primary);
+  background: var(--paper-2);
 }
 @media (max-width: 640px) {
   .muted {

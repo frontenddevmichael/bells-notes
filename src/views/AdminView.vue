@@ -302,8 +302,8 @@ async function decide(status: 'approved' | 'rejected') {
 }
 .gate-card {
   padding: 40px 32px;
-  border: 1px solid var(--border-default);
-  border-radius: 8px;
+  border: 0.5px solid var(--rule);
+  border-radius: 12px;
   background: var(--bg-elevated);
 }
 .gate-icon {
@@ -348,7 +348,7 @@ async function decide(status: 'approved' | 'rejected') {
 .gate-foot {
   margin-top: 24px;
   padding-top: 20px;
-  border-top: 1px solid var(--border-default);
+  border-top: 0.5px solid var(--rule);
   font-size: 12px;
   color: var(--text-quiet);
 }
@@ -365,7 +365,7 @@ async function decide(status: 'approved' | 'rejected') {
 /* Queue head */
 .queue-head {
   background: var(--bg-default);
-  border-bottom: 1px solid var(--border-default);
+  border-bottom: 0.5px solid var(--rule);
   padding: 24px 0;
 }
 .wrap {
@@ -397,10 +397,10 @@ async function decide(status: 'approved' | 'rejected') {
   padding: 8px 14px;
   font-size: 13px;
   font-weight: 500;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   background: transparent;
   color: var(--text-secondary);
-  border: 1px solid var(--border-strong);
+  border: 0.5px solid var(--rule-strong);
   display: flex;
   gap: 8px;
   align-items: center;
@@ -416,7 +416,7 @@ async function decide(status: 'approved' | 'rejected') {
   padding: 1px 6px;
   font-size: 10px;
   font-family: var(--font-mono);
-  border-radius: 2px;
+  border-radius: var(--r-xs);
   background: var(--bg-default);
   color: var(--text-secondary);
 }
@@ -434,20 +434,20 @@ async function decide(status: 'approved' | 'rejected') {
   grid-template-columns: 360px 1fr;
   max-width: var(--max-content);
   margin: 0 auto;
-  border-left: 1px solid var(--border-default);
-  border-right: 1px solid var(--border-default);
+  border-left: 0.5px solid var(--rule);
+  border-right: 0.5px solid var(--rule);
 }
 
 /* Rail */
 .rail {
-  border-right: 1px solid var(--border-default);
+  border-right: 0.5px solid var(--rule);
   background: var(--bg-elevated);
 }
 .rail-row {
   width: 100%;
   padding: 16px 20px;
   border: none;
-  border-bottom: 1px solid var(--border-default);
+  border-bottom: 0.5px solid var(--rule);
   border-left: 3px solid transparent;
   background: transparent;
   cursor: pointer;
@@ -475,7 +475,7 @@ async function decide(status: 'approved' | 'rejected') {
   padding: 1px 6px;
   font-size: 9px;
   font-family: var(--font-mono);
-  border-radius: 2px;
+  border-radius: var(--r-xs);
 }
 .badge-flag {
   background: var(--text-primary);
@@ -488,12 +488,12 @@ async function decide(status: 'approved' | 'rejected') {
 .badge-rej {
   background: transparent;
   color: var(--error);
-  border: 1px solid var(--error);
+  border: 0.5px solid var(--rule-strong);
 }
 .badge-ok {
   background: transparent;
   color: var(--text-primary);
-  border: 1px solid var(--text-primary);
+  border: 1.5px solid var(--text-primary);
 }
 .rail-title {
   font-size: 15px;
@@ -536,7 +536,7 @@ async function decide(status: 'approved' | 'rejected') {
   position: relative;
   overflow: hidden;
   background: var(--bg-elevated);
-  border-radius: 4px;
+  border-radius: var(--r-sm);
 }
 .sk::after {
   content: '';
@@ -548,7 +548,7 @@ async function decide(status: 'approved' | 'rejected') {
 .sk-row {
   display: block;
   padding: 12px 0;
-  border-bottom: 1px solid var(--border-default);
+  border-bottom: 0.5px solid var(--rule);
 }
 .sk-line {
   height: 12px;
@@ -566,7 +566,7 @@ async function decide(status: 'approved' | 'rejected') {
   padding: 14px 18px;
   background: var(--text-primary);
   color: var(--bg-default);
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   display: flex;
   gap: 12px;
   margin-bottom: 24px;
@@ -625,8 +625,8 @@ async function decide(status: 'approved' | 'rejected') {
 }
 .check-tile {
   padding: 14px;
-  border: 1px solid var(--border-default);
-  border-radius: 4px;
+  border: 0.5px solid var(--rule);
+  border-radius: var(--r-sm);
   background: var(--bg-elevated);
 }
 .check-tile.fail {
@@ -646,8 +646,8 @@ async function decide(status: 'approved' | 'rejected') {
 .desc-block {
   padding: 14px 16px;
   background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
-  border-radius: 4px;
+  border: 0.5px solid var(--rule);
+  border-radius: var(--r-sm);
   font-size: 13px;
   line-height: 1.6;
   color: var(--text-secondary);
@@ -656,10 +656,10 @@ async function decide(status: 'approved' | 'rejected') {
 .queue-error {
   margin: 0 0 24px;
   padding: 12px 14px;
-  border: 1px solid var(--border-default);
+  border: 0.5px solid var(--rule);
   border-left: 3px solid var(--error);
   background: var(--bg-default);
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -673,16 +673,16 @@ async function decide(status: 'approved' | 'rejected') {
 .decision {
   padding: 20px;
   background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
-  border-radius: 6px;
+  border: 0.5px solid var(--rule);
+  border-radius: var(--r-sm);
 }
 .decision-input {
   width: 100%;
   background: var(--bg-default);
-  border: 1px solid var(--border-strong);
+  border: 0.5px solid var(--rule-strong);
   color: var(--text-primary);
   padding: 12px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   font-family: inherit;
   font-size: 13px;
   resize: vertical;
@@ -695,8 +695,8 @@ async function decide(status: 'approved' | 'rejected') {
 .context-block {
   padding: 14px 16px;
   background: var(--bg-default);
-  border: 1px solid var(--border-default);
-  border-radius: 4px;
+  border: 0.5px solid var(--rule);
+  border-radius: var(--r-sm);
   margin-bottom: 14px;
 }
 .context-title {
@@ -727,7 +727,7 @@ async function decide(status: 'approved' | 'rejected') {
   }
   .rail {
     border-right: none;
-    border-bottom: 1px solid var(--border-default);
+    border-bottom: 0.5px solid var(--rule);
   }
 }
 @media (max-width: 640px) {

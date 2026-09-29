@@ -47,7 +47,7 @@ withDefaults(defineProps<{ count?: number; size?: 'xs' | 'sm' | 'md' | 'lg' }>()
   inset: 0;
   border-radius: 10px;
   background: var(--bg-default);
-  border: 1px solid var(--rule);
+  border: 0.5px solid var(--rule);
 }
 .sk-card-back-2 {
   transform: rotate(3deg) translateY(1px);
@@ -57,7 +57,7 @@ withDefaults(defineProps<{ count?: number; size?: 'xs' | 'sm' | 'md' | 'lg' }>()
   z-index: 1;
   border-radius: 10px;
   background: var(--bg-elevated);
-  border: 1px solid var(--rule);
+  border: 0.5px solid var(--rule);
   padding: 12px;
   display: flex;
   flex-direction: column;
@@ -71,7 +71,7 @@ withDefaults(defineProps<{ count?: number; size?: 'xs' | 'sm' | 'md' | 'lg' }>()
 }
 .sk-line {
   height: 10px;
-  border-radius: 3px;
+  border-radius: var(--r-xs);
   background: var(--bg-default);
   animation: pulse 2s ease-in-out infinite;
 }

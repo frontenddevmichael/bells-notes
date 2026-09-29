@@ -1,6 +1,11 @@
 <script setup lang="ts">
-// Home — feed-first landing. NOT masthead→pills→stats.
-// Two-column: hero left + search, right column: quick actions + recent.
+// Home — fixed-viewport landing (100dvh, no scroll). Renders nav (App-level),
+// hero (badge/headline/search), Start-here bento, and the footprint stats.
+// Trending/recent/manifesto are hidden below the fold-line (v-show="false") —
+// components kept, zero rendering cost. Line-art book+pages (bottom-left) and
+// moon+constellation (top-right) sit behind glass surfaces.
+import heroBook from '@/assets/hero-book.webp'
+import heroMoon from '@/assets/hero-moon.webp'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDriveStore } from '@/stores/drive'
@@ -33,7 +38,7 @@ const stats = computed(() => [
 ])
 
 const quickSubjects = computed(() =>
-  trendingSubjects(drive.subjects, drive.papers, drive.searchTrends).slice(0, 6),
+  trendingSubjects(drive.subjects, drive.papers, drive.searchTrends).slice(0, 8),
 )
 
 function openPaper(p: Paper) {
@@ -165,12 +170,21 @@ onBeforeUnmount(() => {
   if (refreshTimer) clearTimeout(refreshTimer)
 })
 const isLoading = computed(() => drive.loading && drive.papers.length === 0)
+// ⌘K from Home opens the global command palette (App.vue mounts it; it owns
+// the shortcut — this page previously kept its own duplicate handler).
+// (The book zone is reserved purely in CSS — see .section padding / .hero.)
 </script>
 
 <template>
   <div class="home">
-    <!-- Hero: full-width statement -->
+    <!-- Line-art backdrop: book+pages bottom-left, moon+constellation top-right -->
+    <div class="hero-art hero-art-book" aria-hidden="true" :style="{ backgroundImage: 'url(' + heroBook + ')' }" />
+    <div class="hero-art hero-art-moon" aria-hidden="true" :style="{ backgroundImage: 'url(' + heroMoon + ')' }" />
+    <!-- (tinted gradient wash removed per design pass) -->
+
+    <!-- Hero: glass search dock over the art -->
     <section class="hero">
+      <!-- (gradient glows removed per design pass) -->
       <div class="hero-inner">
         <h1 class="hero-title">
           <Transition name="cycle" mode="out-in">
@@ -178,10 +192,11 @@ const isLoading = computed(() => drive.loading && drive.papers.length === 0)
           </Transition>
         </h1>
 
-        <div ref="containerRef" class="search-container">
+        <div ref="containerRef" class="search-dock">
           <Icon name="search" :size="18" class="search-icon" />
           <input
             v-model="query"
+            ref="searchInput"
             class="search-input"
             type="text"
             autocomplete="off"
@@ -191,6 +206,7 @@ const isLoading = computed(() => drive.loading && drive.papers.length === 0)
             @focus="onInput"
             @blur="handleBlur"
           />
+          <kbd class="search-kbd"><Icon name="command" :size="11" />K</kbd>
           <div v-if="showDropdown && suggestions.length" class="autocomplete-dropdown">
             <button
               v-for="(s, i) in suggestions"
@@ -209,64 +225,69 @@ const isLoading = computed(() => drive.loading && drive.papers.length === 0)
       </div>
     </section>
 
-    <!-- Quick actions: 2x2 grid -->
-    <section class="section">
+    <!-- Quick actions: bento grid (glass) -->
+    <section class="section section-start rise glass-zone" style="--stagger: 80ms">
       <div class="section-inner">
-        <div class="quick-grid">
-          <button class="quick-card" @click="router.push('/browse')">
-            <Icon name="books" :size="22" />
-            <div class="quick-card-text">
-              <div class="quick-card-title">Browse</div>
-              <div class="quick-card-sub">All courses & papers</div>
+        <div class="section-header">
+          <h2 class="section-title">Start here</h2>
+        </div>
+        <div class="bento">
+          <button class="bento-card bento-main" @click="router.push('/browse')">
+            <div class="bento-icon"><Icon name="compass" :size="20" /></div>
+            <div class="bento-copy">
+              <div class="bento-title">Browse the shelves</div>
+              <div class="bento-sub">Every college, every course — all {{ drive.stats.papers.toLocaleString() }} papers</div>
             </div>
+            <Icon name="chevron" :size="16" class="bento-arrow" />
           </button>
-          <button class="quick-card" @click="router.push({ name: 'search' })">
-            <Icon name="search" :size="22" />
-            <div class="quick-card-text">
-              <div class="quick-card-title">Search</div>
-              <div class="quick-card-sub">Find specific notes</div>
+          <button class="bento-card" @click="router.push({ name: 'search' })">
+            <div class="bento-icon"><Icon name="search" :size="18" /></div>
+            <div class="bento-copy">
+              <div class="bento-title">Search</div>
+              <div class="bento-sub">Find specific notes</div>
             </div>
+            <Icon name="chevron" :size="16" class="bento-arrow" />
           </button>
-          <button class="quick-card" @click="router.push({ name: 'upload' })">
-            <Icon name="upload" :size="22" />
-            <div class="quick-card-text">
-              <div class="quick-card-title">Contribute</div>
-              <div class="quick-card-sub">Share your notes</div>
+          <button class="bento-card" @click="router.push({ name: 'upload' })">
+            <div class="bento-icon"><Icon name="upload" :size="18" /></div>
+            <div class="bento-copy">
+              <div class="bento-title">Contribute</div>
+              <div class="bento-sub">Share your notes</div>
             </div>
+            <Icon name="chevron" :size="16" class="bento-arrow" />
           </button>
-          <button class="quick-card" @click="router.push({ name: 'browse' })">
-            <Icon name="bookmark" :size="22" />
-            <div class="quick-card-text">
-              <div class="quick-card-title">Saved</div>
-              <div class="quick-card-sub">Your bookmarks</div>
-            </div>
+          <button class="bento-chip" @click="router.push({ name: 'browse' })">
+            <Icon name="zap" :size="13" />
+            Saved for later
+            <Icon name="chevron" :size="14" class="bento-arrow" />
           </button>
         </div>
       </div>
     </section>
 
-    <!-- Stats row -->
-    <section class="section">
+    <!-- Footprint strip: side-rule stats, no box -->
+    <section class="section rise glass-zone" style="--stagger: 140ms">
       <div class="section-inner">
-        <div class="stats-row">
+        <div class="footprint">
           <template v-if="isLoading">
-            <div v-for="i in 4" :key="i" class="stat-item">
-              <div class="sk stat-val" />
-              <div class="sk stat-lbl" />
+            <div v-for="i in 4" :key="i" class="footprint-item">
+              <div class="sk footprint-val" />
+              <div class="sk footprint-lbl" />
             </div>
           </template>
           <template v-else>
-            <div v-for="s in stats" :key="s.label" class="stat-item">
-              <div class="stat-val">{{ s.value }}</div>
-              <div class="stat-lbl">{{ s.label }}</div>
+            <div v-for="s in stats" :key="s.label" class="footprint-item">
+              <div class="footprint-val">{{ s.value }}</div>
+              <div class="footprint-lbl">{{ s.label }}</div>
             </div>
           </template>
         </div>
       </div>
     </section>
 
-    <!-- Trending subjects -->
-    <section class="section" v-if="!isLoading && quickSubjects.length">
+    <!-- Below the viewport line: hidden (not deleted) per the fixed-viewport
+         home spec. v-show=false keeps them mounted-but-unrendered. -->
+    <section class="section" v-show="false" v-if="!isLoading && quickSubjects.length">
       <div class="section-inner">
         <div class="section-header">
           <h2 class="section-title">Trending</h2>
@@ -274,9 +295,10 @@ const isLoading = computed(() => drive.loading && drive.papers.length === 0)
         </div>
         <div class="trending-grid">
           <button
-            v-for="s in quickSubjects"
+            v-for="(s, i) in quickSubjects"
             :key="s.id"
             class="trending-chip"
+            :style="{ '--chip-delay': 40 * i + 'ms' }"
             @click="router.push({ name: 'subject', params: { id: s.id } })"
           >
             <span class="trending-name">{{ s.name }}</span>
@@ -286,8 +308,7 @@ const isLoading = computed(() => drive.loading && drive.papers.length === 0)
       </div>
     </section>
 
-    <!-- Recently added -->
-    <section class="section">
+    <section class="section rise" style="--stagger: 200ms" v-show="false">
       <div class="section-inner">
         <div class="section-header">
           <h2 class="section-title">Recently added</h2>
@@ -312,8 +333,7 @@ const isLoading = computed(() => drive.loading && drive.papers.length === 0)
       </div>
     </section>
 
-    <!-- Most loved -->
-    <section class="section">
+    <section class="section rise" style="--stagger: 260ms" v-show="false">
       <div class="section-inner">
         <div class="section-header">
           <h2 class="section-title">Most loved</h2>
@@ -337,6 +357,31 @@ const isLoading = computed(() => drive.loading && drive.papers.length === 0)
         <div v-else class="empty-box">{{ drive.error || 'No papers yet.' }}</div>
       </div>
     </section>
+
+    <section class="section rise" style="--stagger: 320ms" v-show="false">
+      <div class="section-inner">
+        <div class="manifesto">
+          <div class="manifesto-head">
+            <span class="manifesto-bell"><Icon name="bell" :size="16" /></span>
+            <h2 class="section-title">A library that runs itself</h2>
+          </div>
+          <p class="manifesto-copy">
+            Bells Notes is built by students, for students — no accounts, no paywalls,
+            no gatekeeping. Read anything, contribute in under a minute, and every
+            paper is checked by real people before it reaches the shelf.
+          </p>
+          <div class="manifesto-points">
+            <div class="m-point"><Icon name="flame" :size="15" /><span>Free forever — no account needed</span></div>
+            <div class="m-point"><Icon name="layers" :size="15" /><span>{{ drive.stats.subjects.toLocaleString() }} subjects and counting</span></div>
+            <div class="m-point"><Icon name="shield" :size="15" /><span>Human-reviewed before publishing</span></div>
+          </div>
+          <button class="btn btn-primary manifesto-cta" @click="router.push('/about')">
+            How it works
+            <Icon name="arrow-right" :size="14" />
+          </button>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -349,53 +394,208 @@ const isLoading = computed(() => drive.loading && drive.papers.length === 0)
   to { opacity: 1; }
 }
 
-/* Hero — full-width statement, no background box */
+/* ============================================================
+   Fixed-viewport home — everything inside 100dvh, no page scroll.
+   Line-art backdrop + glass surfaces over a tinted gradient.
+   ============================================================ */
+.home {
+  position: relative;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: var(--banner-h) 40px 20px;
+  background: var(--bg);
+}
+
+/* Line-art layers — book+pages bottom-left, moon+constellation top-right.
+   Dark mode inverts the ink (screen blend keeps the paper transparent). */
+.hero-art {
+  position: absolute;
+  background-repeat: no-repeat;
+  background-size: contain;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.9;
+}
+.hero-art-book {
+  left: -24px;
+  bottom: -10px;
+  width: min(46vw, 560px);
+  height: 52%;
+  background-position: left bottom;
+}
+.hero-art-moon {
+  right: -30px;
+  top: 44px;
+  width: min(42vw, 500px);
+  height: 46%;
+  background-position: right top;
+}
+html.dark .hero-art {
+  filter: invert(1);
+  mix-blend-mode: screen;
+  opacity: 0.5;
+}
+
+/* (tinted gradient wash removed per design pass) */
+
+/* Glass recipe — nav/search/cards/stats all share it (nav is app-level) */
+.glass-zone .bento-card,
+.glass-zone .bento-chip {
+  background: var(--material);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 8px 24px rgba(0, 0, 0, 0.06);
+}
+.glass-zone .bento-icon {
+  background: rgba(255, 255, 255, 0.5);
+}
+.glass-zone .footprint-item + .footprint-item {
+  border-left-color: rgba(255, 255, 255, 0.5);
+}
+html.dark .glass-zone .bento-card,
+html.dark .glass-zone .bento-chip {
+  background: rgba(28, 28, 30, 0.55);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+html.dark .glass-zone .bento-icon {
+  background: rgba(255, 255, 255, 0.08);
+}
+html.dark .glass-zone .footprint-item + .footprint-item {
+  border-left-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Staggered section entrance */
+.rise {
+  animation: rise-in 640ms var(--ease-out) both;
+  animation-delay: var(--stagger, 0ms);
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none;
+  }
+}
+
+/* Hero — top band of the fixed viewport; search docks right of the book zone */
 .hero {
-  padding: 80px 32px 48px;
-  max-width: 720px;
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  /* Same horizontal padding recipe as .section so hero + glass zones
+     share ONE column (title/search align with the cards below). */
+  padding: clamp(40px, 8.5vh, 80px) 32px 0 calc(32px + clamp(0px, 18vw, 220px));
+  width: 100%;
+}
+.hero-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  /* Mirrors .section-inner so both columns share edges. */
+  width: min(960px, 100%);
   margin: 0 auto;
 }
+/* (gradient glows removed per design pass) */
+
+/* (sculpture + badge styles retired) */
+
+/* (badge styles retired) */
 .hero-title {
   font-family: var(--font-heading);
-  font-size: clamp(28px, 5vw, 44px);
-  line-height: 1.15;
-  letter-spacing: -0.03em;
-  font-weight: 500;
+  font-size: clamp(26px, 4.2vw, 44px);
+  line-height: 1.08;
+  letter-spacing: -0.033em;
+  font-weight: 700;
   color: var(--text-primary);
   margin: 0;
   min-height: 1.2em;
+  max-width: 620px;
 }
 
-/* Search — pill shape, no box */
-.search-container {
+/* Search dock — glass (matches nav capsule material) */
+.search-dock {
   position: relative;
-  margin-top: 28px;
+  margin-top: 30px;
+  display: flex;
+  align-items: center;
+  background: var(--material-strong);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 8px 24px rgba(0, 0, 0, 0.08);
+  transition:
+    box-shadow var(--dur-med) var(--ease-out),
+    transform var(--dur-med) var(--ease-out);
+}
+html.dark .search-dock {
+  background: rgba(28, 28, 30, 0.6);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+.search-dock:focus-within {
+  transform: translateY(-2px);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    0 16px 40px rgba(0, 0, 0, 0.12);
 }
 .search-icon {
   position: absolute;
   left: 18px;
-  top: 50%;
-  transform: translateY(-50%);
   color: var(--text-tertiary);
   pointer-events: none;
 }
 .search-input {
-  width: 100%;
-  background: var(--bg-default);
+  flex: 1;
+  min-width: 0;
+  background: transparent;
   border: none;
-  border-radius: 999px;
-  padding: 16px 20px 16px 48px;
-  font-size: 15px;
+  padding: 17px 12px 17px 48px;
+  font-size: 16px;
   color: var(--text-primary);
   font-family: var(--font-sans);
-  transition: background var(--dur-fast);
+}
+.search-input:focus {
+  outline: none;
 }
 .search-input::placeholder {
   color: var(--text-tertiary);
 }
-.search-input:focus {
-  outline: none;
-  background: var(--bg-elevated);
+.search-kbd {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-right: 14px;
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  background: var(--paper-2);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+@media (max-width: 640px) {
+  .search-kbd {
+    display: none;
+  }
 }
 .autocomplete-dropdown {
   position: absolute;
@@ -403,7 +603,7 @@ const isLoading = computed(() => drive.loading && drive.papers.length === 0)
   left: 0;
   right: 0;
   background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
+  border: 0.5px solid var(--rule);
   border-radius: var(--r-lg);
   box-shadow: 0 8px 24px rgba(0,0,0,0.08);
   overflow: hidden;
@@ -448,20 +648,37 @@ const isLoading = computed(() => drive.loading && drive.papers.length === 0)
   color: var(--text-quiet);
   background: var(--bg-elevated);
   padding: 2px 6px;
-  border-radius: 3px;
+  border-radius: var(--r-xs);
   flex-shrink: 0;
 }
 
-/* Section layout */
+/* Section layout — glass zones align right of the book's corner.
+   The two auto margins split the leftover viewport height evenly,
+   so the void breathes BETWEEN zones instead of pooling in one place. */
 .section {
-  padding: 0 32px;
+  position: relative;
+  z-index: 1;
+  padding: 0 32px 0 calc(32px + clamp(0px, 18vw, 220px));
+  margin-top: auto;
 }
-.section + .section {
-  margin-top: 56px;
+/* :first-of-type can't be used here — .hero is the first <section>,
+   so the bento zone is never first-of-type. Explicit class instead. */
+.section-start {
+  padding-top: 20px;
+}
+.glass-zone + .glass-zone {
+  margin-top: auto;
+  padding-bottom: 8px;
 }
 .section-inner {
   max-width: 960px;
   margin: 0 auto;
+}
+.section-header {
+  margin-bottom: 14px;
+}
+.section-title {
+  font-size: 16px;
 }
 .section-header {
   display: flex;
@@ -485,71 +702,189 @@ const isLoading = computed(() => drive.loading && drive.papers.length === 0)
   color: var(--text-primary);
 }
 
-/* Quick actions grid */
-.quick-grid {
+/* Bento quick actions */
+.bento {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-areas:
+    'main a b'
+    'main c c';
   gap: 12px;
 }
-.quick-card {
+/* Higher specificity than .bento-card so the column layout wins
+   (the card base sets align-items: center later in the cascade). */
+.bento .bento-main {
+  grid-area: main;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-height: 188px;
+  padding: 22px;
+}
+.bento-main .bento-arrow {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+}
+.bento-card {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 20px;
-  background: var(--bg-default);
-  border: 1px solid var(--border-default);
+  gap: 12px;
+  padding: 16px 18px;
+  background: var(--bg-elevated);
+  border: none;
   border-radius: var(--r-lg);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 14px rgba(0, 0, 0, 0.05);
   cursor: pointer;
-  transition: all var(--dur-fast) var(--ease-out);
+  transition:
+    transform var(--dur-fast) var(--ease-spring),
+    box-shadow var(--dur-med) var(--ease-out);
   text-align: left;
 }
-.quick-card:hover {
-  background: var(--bg-elevated);
-  transform: translateY(-2px);
+.bento-card:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    0 16px 36px rgba(0, 0, 0, 0.1);
 }
-.quick-card svg {
-  color: var(--text-secondary);
+.bento-card:active {
+  transform: scale(0.98);
+}
+.bento-main .bento-title {
+  font-size: 17px;
+}
+.bento-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--paper-2);
+  color: var(--text-primary);
   flex-shrink: 0;
 }
-.quick-card-title {
-  font-size: 14px;
+.bento-main .bento-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+}
+.bento-title {
+  font-size: 14.5px;
   font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
 }
-.quick-card-sub {
-  font-size: 12px;
+.bento-sub {
+  font-size: 12.5px;
   color: var(--text-tertiary);
-  margin-top: 2px;
+  margin-top: 3px;
+}
+.bento-arrow {
+  color: var(--text-quiet);
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.bento-card:hover .bento-arrow {
+  transform: translateX(3px);
+  color: var(--text-primary);
+}
+.bento-chip {
+  grid-area: c;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 980px;
+  background: var(--material);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border: var(--hairline);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    color var(--dur-fast),
+    transform var(--dur-fast) var(--ease-spring);
+}
+.bento-chip:hover {
+  color: var(--text-primary);
+}
+.bento-chip:active {
+  transform: scale(0.97);
+}
+.bento-chip .bento-arrow {
+  margin-left: auto;
+}
+@media (max-width: 720px) {
+  .bento {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'main' 'a' 'b' 'c';
+  }
+  .bento-main {
+    flex-direction: row;
+    align-items: center;
+  }
 }
 
-/* Stats row */
-.stats-row {
+/* Footprint strip — glass-washed stats */
+.footprint {
   display: flex;
-  gap: 48px;
-  padding: 24px 0;
-  border-top: 1px solid var(--border-default);
-  border-bottom: 1px solid var(--border-default);
+  padding: 0;
 }
-.stat-item {
+.footprint-item {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  padding: 12px 32px 8px;
 }
-.stat-val {
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+.footprint-item + .footprint-item {
+  border-left: 1px solid rgba(255, 255, 255, 0.5);
+}
+.footprint-item:first-child {
+  padding-left: 0;
+}
+.footprint-val {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
   color: var(--text-primary);
   font-family: var(--font-mono);
 }
-.stat-lbl {
-  font-size: 12px;
+.footprint-lbl {
+  font-size: 10px;
   color: var(--text-tertiary);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+html.dark .footprint-item + .footprint-item {
+  border-left-color: rgba(255, 255, 255, 0.12);
+}
+@media (max-width: 720px) {
+  .footprint {
+    flex-wrap: wrap;
+    gap: 12px 0;
+  }
+  .footprint-item {
+    flex: 1 1 40%;
+    padding: 6px 20px;
+  }
+  .footprint-item:nth-child(3) {
+    border-left: none;
+    padding-left: 0;
+  }
+  .footprint-val {
+    font-size: 18px;
+  }
 }
 
-/* Trending chips */
+/* Trending chips — staggered entrance, no borders */
 .trending-grid {
   display: flex;
   flex-wrap: wrap;
@@ -559,19 +894,36 @@ const isLoading = computed(() => drive.loading && drive.papers.length === 0)
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
-  border: 1px solid var(--border-default);
-  border-radius: 999px;
+  padding: 9px 16px;
+  border: none;
+  border-radius: 980px;
   font-size: 13px;
+  font-weight: 500;
   color: var(--text-primary);
-  background: transparent;
+  background: var(--bg-elevated);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 3px 10px rgba(0, 0, 0, 0.05);
   cursor: pointer;
-  transition: all var(--dur-fast) var(--ease-out);
+  animation: rise-in 480ms var(--ease-out) both;
+  animation-delay: var(--chip-delay, 0ms);
+  transition:
+    transform var(--dur-fast) var(--ease-spring),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+@media (prefers-reduced-motion: reduce) {
+  .trending-chip {
+    animation: none;
+  }
 }
 .trending-chip:hover {
-  background: var(--text-primary);
-  color: var(--bg-default);
-  border-color: var(--text-primary);
+  transform: translateY(-2px);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    0 10px 22px rgba(0, 0, 0, 0.1);
+}
+.trending-chip:active {
+  transform: scale(0.96);
 }
 .trending-count {
   font-family: var(--font-mono);
@@ -597,7 +949,7 @@ const isLoading = computed(() => drive.loading && drive.papers.length === 0)
 }
 .recent-scroll::-webkit-scrollbar-thumb {
   background: var(--border-strong);
-  border-radius: 2px;
+  border-radius: var(--r-xs);
 }
 .recent-card {
   flex-shrink: 0;
@@ -633,8 +985,8 @@ const isLoading = computed(() => drive.loading && drive.papers.length === 0)
 .sk {
   position: relative;
   overflow: hidden;
-  background: var(--bg-default);
-  border-radius: 4px;
+  background: var(--paper-2);
+  border-radius: var(--r-sm);
 }
 .sk::after {
   content: '';
@@ -650,13 +1002,81 @@ const isLoading = computed(() => drive.loading && drive.papers.length === 0)
 .stat-val { width: 48px; height: 22px; }
 .stat-lbl { width: 64px; height: 10px; }
 
+/* Manifesto panel — quiet authority */
+.manifesto {
+  position: relative;
+  padding: 40px 44px;
+  border-radius: var(--r-2xl);
+  background: linear-gradient(135deg, var(--paper-2), transparent 60%);
+  overflow: hidden;
+}
+.manifesto::before {
+  content: '';
+  position: absolute;
+  right: -60px;
+  top: -60px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(120, 119, 255, 0.08), transparent 65%);
+}
+.manifesto-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.manifesto-bell {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  color: var(--bg-elevated);
+  flex-shrink: 0;
+}
+.manifesto-copy {
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  max-width: 560px;
+  margin: 0 0 20px;
+}
+.manifesto-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  margin-bottom: 24px;
+}
+.m-point {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.m-point svg {
+  color: var(--text-tertiary);
+}
+.manifesto-cta {
+  display: inline-flex;
+}
+@media (max-width: 640px) {
+  .manifesto {
+    padding: 28px 24px;
+    border-radius: var(--r-xl);
+  }
+}
+
 /* Empty */
 .empty-box {
   padding: 48px;
   text-align: center;
   color: var(--text-tertiary);
-  border: 1px dashed var(--border-default);
-  border-radius: 10px;
+  background: var(--paper-2);
+  border-radius: var(--r-md);
 }
 
 /* Cycle transitions */
@@ -673,11 +1093,105 @@ const isLoading = computed(() => drive.loading && drive.papers.length === 0)
   transform: translateY(-8px);
 }
 
+/* ============================================================
+   Narrow (≤900px): book drops below the fold-line; UI stacks full-width
+   ============================================================ */
+@media (max-width: 900px) {
+  .home {
+    padding: calc(var(--banner-h) + 4px) 20px 14px;
+  }
+  .hero {
+    padding: 8px 20px;
+  }
+  .hero-art-book {
+    width: 72vw;
+    height: 40%;
+    left: -20px;
+    bottom: -8px;
+    opacity: 0.75;
+  }
+  .hero-art-moon {
+    width: 58vw;
+    height: 34%;
+    right: -24px;
+    top: 36px;
+    opacity: 0.6;
+  }
+  .section {
+    padding: 0 20px;
+  }
+}
+
+/* ============================================================
+   Phone (≤720px): compact vertical budget — bento reflows to
+   main / a+b / chip so everything still fits one 100dvh screen.
+   ============================================================ */
 @media (max-width: 720px) {
-  .hero { padding: 56px 20px 32px; }
-  .section { padding: 0 20px; }
-  .quick-grid { grid-template-columns: repeat(2, 1fr); }
   .stats-row { gap: 24px; flex-wrap: wrap; }
   .recent-card { width: 120px; }
+  .hero-title {
+    font-size: clamp(21px, 6.4vw, 28px);
+  }
+  .search-dock {
+    margin-top: 12px;
+    border-radius: 15px;
+  }
+  .search-input {
+    padding-top: 13px;
+    padding-bottom: 13px;
+    font-size: 15px;
+  }
+  .section-header {
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-size: 14px;
+  }
+  .bento {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      'main main'
+      'a b'
+      'c c';
+    gap: 8px;
+  }
+  .bento-main {
+    flex-direction: row;
+    align-items: center;
+  }
+  .bento-main .bento-sub {
+    display: none;
+  }
+  .bento-card {
+    padding: 12px 14px;
+  }
+  .bento-main .bento-title {
+    font-size: 15px;
+  }
+  .bento-title {
+    font-size: 13px;
+  }
+  .bento-sub {
+    font-size: 11px;
+    margin-top: 2px;
+  }
+  .bento-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+  }
+  .bento-chip {
+    padding: 9px 14px;
+    font-size: 12px;
+  }
+  .footprint-item {
+    padding: 4px 14px;
+  }
+  .footprint-val {
+    font-size: 16px;
+  }
+  .footprint-lbl {
+    font-size: 8.5px;
+  }
 }
 </style>
