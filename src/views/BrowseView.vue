@@ -607,7 +607,23 @@ html.dark .hero-glow {
 
 @media (max-width: 720px) {
   .browse { padding: 20px; }
-  .college-grid, .program-grid { grid-template-columns: repeat(2, 1fr); }
+  /* College cards → single-column list rows: full-width rows read better
+     than two cramped cards with wrapped names */
+  .college-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .college-card {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+  .college-icon {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+  }
+  .program-grid { grid-template-columns: repeat(2, 1fr); }
   .level-grid { grid-template-columns: repeat(3, 1fr); }
 }
 </style>

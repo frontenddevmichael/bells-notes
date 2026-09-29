@@ -731,6 +731,19 @@ html.dark .search-dock {
   min-height: 188px;
   padding: 22px;
 }
+/* Phone: the 188px showpiece is mostly air — compact it so the fold fits
+   hero + cards + stats + footer above the tab bar without scrolling. */
+@media (max-width: 720px) {
+  .bento .bento-main {
+    min-height: 118px;
+    padding: 16px;
+  }
+  .bento-main .bento-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+  }
+}
 .bento-main .bento-arrow {
   position: absolute;
   right: 18px;
@@ -1108,10 +1121,15 @@ html.dark .footprint-item + .footprint-item {
    ============================================================ */
 @media (max-width: 900px) {
   .home {
-    padding: 24px 20px 14px;
+    /* 52px nav (fixed on Home) + tab bar reserve: keep hero clear up top,
+       pull the bottom up so stats/footer don't push past the fold */
+    padding: 60px 20px 0;
   }
   .hero {
-    padding: 8px 20px;
+    padding: 0 20px;
+  }
+  .search-dock {
+    margin-top: 14px;
   }
   .hero-art-book {
     width: 72vw;
