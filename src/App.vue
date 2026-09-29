@@ -2,7 +2,6 @@
 // App shell — banner + nav + routed screen (with iOS-style page transition) + footer
 import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import AppBanner from '@/components/AppBanner.vue'
 import TopStrip from '@/components/TopStrip.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import CommandPalette from '@/components/CommandPalette.vue'
@@ -20,7 +19,6 @@ onMounted(() => {
   <!-- Home is a fixed-viewport screen: the nav floats over the hero art and
        the screen flexes to fill the space above the footer. -->
   <div class="app-shell">
-    <AppBanner v-if="route.path !== '/'" />
     <TopStrip />
   <!--
     Page transition (Apple push feel): leaving screen dims and sinks while the
@@ -57,11 +55,18 @@ onMounted(() => {
      Home (footer sits inside the fixed screen) uses only the footer margin. */
   padding-bottom: 52px;
 }
-/* Home: main is the flex frame between nav and footer; .home fills it. */
+/* Home: main is the flex frame between nav and footer; .home fills it.
+   ≤720px the footer lifts above the fixed bottom tab bar. */
 .app-shell > main.is-home {
   display: flex;
   flex-direction: column;
   padding-bottom: 0;
+}
+@media (max-width: 720px) {
+  .app-shell {
+    /* Room for the fixed bottom tab bar (72px incl. padding) */
+    padding-bottom: 72px;
+  }
 }
 .page-enter-active {
   transition:

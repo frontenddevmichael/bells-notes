@@ -1,278 +1,298 @@
 <script setup lang="ts">
-// About — editorial "how it works" page. Ported from About.jsx.
+// About — minimal, visual-first. One idea per screen: what it is, the number,
+// who makes it. Copy is plain-spoken; no marketing filler.
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDriveStore } from '@/stores/drive'
+import { formatCount } from '@/script/design'
 import Icon from '@/components/Icon.vue'
-import Ornament from '@/components/Ornament.vue'
 import Avatar from '@/components/Avatar.vue'
 
 const drive = useDriveStore()
 const router = useRouter()
 
-const RULES = [
-  {
-    label: 'RULE 01',
-    title: 'Built by a Bells student, for Bells students.',
-    body: 'This library exists because one student got tired of digging through WhatsApp groups for last semester\'s notes. It\'s not a startup, not a side project that got out of hand — it\'s just a tool that works.',
-  },
-  {
-    label: 'RULE 02',
-    title: 'Attribution is not optional.',
-    body: 'Every paper carries the name of the person who contributed it. Take credit for your work; give credit to others\u2019.',
-  },
-  {
-    label: 'RULE 03',
-    title: 'Moderators have the last word.',
-    body: 'A small rotating group of contributors reviews every submission. They approve, request changes, or reject. Their decisions are appealable, but final.',
-  },
-]
+const stats = computed(() => [
+  { value: drive.stats.papers.toLocaleString(), label: 'papers on the shelf' },
+  { value: formatCount(drive.stats.reads), label: 'reads every month' },
+  { value: String(drive.stats.contributors), label: 'students who shared their notes' },
+])
 
-// Moderators: take contributors with the most uploads, prefer founder first
-const moderators = computed(() => {
-  const list = [...drive.contributors]
-  list.sort((a, b) => (b.founder ? 1 : 0) - (a.founder ? 1 : 0) || b.uploads - a.uploads)
-  return list.slice(0, 8)
-})
+const contributors = computed(() =>
+  [...drive.contributors].sort((a, b) => b.uploads - a.uploads).slice(0, 10),
+)
 </script>
 
 <template>
-  <div class="screen-wrap about">
-    <div class="smallcaps" style="margin-bottom: 16px">About</div>
-    <h1 class="hero-title">Bells Notes.</h1>
-    <p class="hero-sub">
-      A free library for Bells students. Notes, past questions, and study guides
-      from real students — no accounts, no paywalls, no nonsense.
-    </p>
-
-    <Ornament style="margin-bottom: 48px" />
-
-    <div class="body">
-      <p>
-        It started because one student kept losing their notes. A shared folder
-        became a Google Drive, became this. No big launch, no funding, no team —
-        just students helping students pass their courses.
+  <div class="about">
+    <!-- 1. What this is -->
+    <section class="lead">
+      <div class="smallcaps">About</div>
+      <h1 class="statement">
+        A library built from other students' notebooks.
+      </h1>
+      <p class="sub">
+        Someone took the notes. Someone else needed them. This site just keeps
+        the two from getting lost.
       </p>
-      <p>
-        Today it holds {{ drive.stats.papers.toLocaleString() }} documents.
-        Every one of them was left behind by a student who wanted the next
-        person to have a slightly easier time than they did.
-      </p>
-
-      <h2 class="section-title">Three rules.</h2>
-
-      <ol class="rules">
-        <li v-for="(r, i) in RULES" :key="r.label" class="rule" :class="{ bordered: i > 0 }">
-          <div class="rule-label">{{ r.label }}</div>
-          <div>
-            <div class="rule-title">{{ r.title }}</div>
-            <div class="rule-body">{{ r.body }}</div>
-          </div>
-        </li>
-      </ol>
-
-      <h2 class="section-title">Who runs this.</h2>
-      <p>
-        A Bells student. That's it. No university backing, no company, no ads.
-        If it breaks, whoever's around fixes it. If it stops being useful, it
-        stops existing.
-      </p>
-      <p>
-        Uploads ask for a name and email — the email stays private and is only
-        used if a moderator needs to reach you.
-        No accounts to create, nothing to log in to. Read, upload, or leave.
-      </p>
-
-      <h2 class="section-title">Want to help.</h2>
-      <p>
-        Upload your notes. Comment on something. Flag something that shouldn't be here.
-        If you want to be a moderator, contribute a dozen papers first — we ask the
-        top contributors when a spot opens.
-      </p>
-    </div>
-
-    <!-- Moderators card -->
-    <div class="moderators-card">
-      <div class="smallcaps" style="margin-bottom: 20px">Current moderators</div>
-      <div class="mod-grid">
-        <button
-          v-for="c in moderators"
-          :key="c.id"
-          class="mod-row"
-          @click="router.push({ name: 'profile', params: { id: c.id } })"
-        >
-          <Avatar :user="c" :size="28" />
-          <div class="mod-main">
-            <div class="mod-name">{{ c.name }}</div>
-            <div class="mod-handle mono-meta" style="font-size: 10px">{{ c.handle }}</div>
-          </div>
+      <div class="cta">
+        <button class="btn btn-primary" @click="router.push({ name: 'browse' })">
+          <Icon name="books" :size="15" /> Start browsing
         </button>
       </div>
-    </div>
+    </section>
 
-    <div class="actions">
-      <button class="btn btn-primary" @click="router.push({ name: 'upload' })">
-        <Icon name="upload" :size="14" /> Contribute a paper
+    <!-- 2. The numbers, big -->
+    <section class="numbers">
+      <div v-for="s in stats" :key="s.label" class="stat">
+        <div class="stat-value">{{ s.value }}</div>
+        <div class="stat-label">{{ s.label }}</div>
+      </div>
+    </section>
+
+    <!-- 3. How it works — three steps, visual icons -->
+    <section class="how">
+      <div class="step">
+        <div class="step-icon"><Icon name="upload" :size="22" /></div>
+        <h2>A student uploads</h2>
+        <p>Lecture notes, past exams, guides — anything that helped them pass.</p>
+      </div>
+      <div class="step">
+        <div class="step-icon"><Icon name="eye" :size="22" /></div>
+        <h2>A person checks it</h2>
+        <p>A moderator reviews every file before it goes on the shelf. No spam survives.</p>
+      </div>
+      <div class="step">
+        <div class="step-icon"><Icon name="download" :size="22" /></div>
+        <h2>Everyone reads it</h2>
+        <p>Free, no login, forever. The contributor's name stays on the work.</p>
+      </div>
+    </section>
+
+    <!-- 4. Who's on the shelf — contributors -->
+    <section class="people">
+      <div class="smallcaps">On the shelf thanks to</div>
+      <div class="people-grid">
+        <button
+          v-for="c in contributors"
+          :key="c.id"
+          class="person"
+          @click="router.push({ name: 'profile', params: { id: c.id } })"
+        >
+          <Avatar :user="c" :size="40" />
+          <span class="person-name">{{ c.name }}</span>
+          <span class="person-count">{{ c.uploads }} {{ c.uploads === 1 ? 'paper' : 'papers' }}</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 5. The fine print, short -->
+    <section class="fine">
+      <p>
+        No ads. No trackers. No accounts. If something here helped you, the
+        best thanks is adding something that helps the next person.
+      </p>
+      <button class="contribute-link" @click="router.push({ name: 'upload' })">
+        Contribute a paper <Icon name="arrow-right" :size="14" />
       </button>
-      <button class="btn btn-secondary" @click="router.push({ name: 'browse' })">
-        Browse the library
-      </button>
-    </div>
+    </section>
   </div>
 </template>
 
 <style scoped>
 .about {
-  max-width: 780px;
+  max-width: 880px;
   margin: 0 auto;
-  padding: 72px 32px 0;
+  padding: 72px 32px 24px;
 }
-.hero-title {
+
+/* 1. Lead — one statement, one sub, one button */
+.lead {
+  padding-bottom: 72px;
+}
+.statement {
   font-family: var(--font-heading);
-  font-size: clamp(36px, 8vw, 72px);
-  line-height: 1;
-  margin: 0;
+  font-size: clamp(38px, 7vw, 76px);
+  line-height: 1.02;
   letter-spacing: -0.033em;
-  color: var(--text-primary);
   font-weight: 700;
+  color: var(--text-primary);
+  margin: 20px 0 28px;
+  max-width: 720px;
   text-wrap: balance;
 }
-.hero-sub {
-  font-family: var(--font-sans);
+.sub {
   font-size: 20px;
+  line-height: 1.55;
   color: var(--text-secondary);
-  margin: 24px 0 48px;
-  line-height: 1.5;
-  max-width: 640px;
+  max-width: 520px;
+  margin: 0 0 36px;
   letter-spacing: -0.01em;
 }
-.body {
-  font-size: 16px;
-  line-height: 1.75;
-  color: var(--text-primary);
-  letter-spacing: -0.005em;
+.cta {
+  display: flex;
+  gap: 12px;
 }
-.body p {
-  margin: 0 0 20px;
-}
-.section-title {
-  font-size: 28px;
-  margin: 56px 0 20px;
-  letter-spacing: -0.025em;
-  color: var(--text-primary);
-  font-weight: 500;
-}
-.rules {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.rule {
+
+/* 2. Numbers — oversized, quiet labels */
+.numbers {
   display: grid;
-  grid-template-columns: 72px 1fr;
-  gap: 20px;
-  margin-bottom: 24px;
-  padding-top: 20px;
-}
-.rule.bordered {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding: 56px 0;
   border-top: 0.5px solid var(--rule);
 }
-.rule-label {
+.stat-value {
   font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--text-quiet);
-  letter-spacing: 0.04em;
-  padding-top: 6px;
-}
-.rule-title {
-  font-size: 20px;
+  font-size: clamp(34px, 5vw, 56px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
   color: var(--text-primary);
-  margin-bottom: 6px;
-  font-weight: 500;
-  letter-spacing: -0.015em;
+  line-height: 1;
 }
-.rule-body {
-  color: var(--text-secondary);
-  font-size: 15px;
-  line-height: 1.65;
+.stat-label {
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.01em;
 }
-.moderators-card {
-  margin-top: 72px;
-  padding: 32px;
-  border: 0.5px solid var(--rule);
-  border-radius: var(--r-sm);
-  background: var(--bg-elevated);
-}
-.mod-grid {
+
+/* 3. How — three icon steps */
+.how {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  padding: 56px 0;
+  border-top: 0.5px solid var(--rule);
 }
-.mod-row {
+.step-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--paper-2);
+  color: var(--text-primary);
+  margin-bottom: 18px;
+}
+.step h2 {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 0 0 8px;
+  color: var(--text-primary);
+}
+.step p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* 4. People */
+.people {
+  padding: 56px 0;
+  border-top: 0.5px solid var(--rule);
+}
+.people-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+.person {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  background: var(--bg-elevated);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  text-align: left;
+  transition: transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast);
+}
+.person:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+.person-main {
+  min-width: 0;
+}
+.person-name {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.person-count {
+  display: block;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+}
+
+/* 5. Fine print */
+.fine {
+  padding: 56px 0 72px;
+  border-top: 0.5px solid var(--rule);
+}
+.fine p {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  max-width: 480px;
+  margin: 0 0 20px;
+}
+.contribute-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text-primary);
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
-  text-align: left;
+  border-bottom: 1.5px solid var(--text-primary);
+  padding-bottom: 2px;
+  transition: opacity var(--dur-fast);
 }
-.mod-main {
-  min-width: 0;
-}
-.mod-name {
-  font-size: 12px;
-  color: var(--text-primary);
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.mod-handle {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.actions {
-  margin-top: 48px;
-  margin-bottom: 96px;
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+.contribute-link:hover {
+  opacity: 0.65;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 720px) {
   .about {
-    padding: 48px 20px 0;
+    padding: 48px 20px 24px;
+    /* thumb-reach: keep content clear of the bottom tab bar */
+    padding-bottom: 110px;
   }
-  .hero-sub {
-    font-size: 17px;
-    margin: 20px 0 36px;
+  .lead {
+    padding-bottom: 48px;
   }
-  .section-title {
-    font-size: 24px;
-    margin: 44px 0 16px;
-  }
-  .mod-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-  .rule {
+  .numbers {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 28px;
+    padding: 44px 0;
   }
-  .moderators-card {
-    margin-top: 56px;
-    padding: 24px 20px;
+  .how {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    padding: 44px 0;
   }
-  .actions {
-    margin-top: 36px;
-    margin-bottom: 72px;
-    flex-direction: column;
+  .people,
+  .fine {
+    padding: 44px 0;
   }
-  .actions .btn {
-    width: 100%;
+  .fine {
+    padding-bottom: 56px;
+  }
+  .sub {
+    font-size: 17px;
   }
 }
 </style>

@@ -2,8 +2,10 @@
 // TopStrip — full-width frosted toolbar (macOS-style). Logo left, centered
 // nav links with active capsule, actions right (⌘K palette, About, theme).
 // Condenses on scroll. On Home it floats fixed (no flow space — that screen
-// is a fixed 100dvh composition).
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+// is a fixed-viewport composition).
+// ≤720px: toolbar keeps brand + tools; NAVIGATION moves to a padded bottom
+// tab bar (thumb-reach, iOS style) with Browse/Search/Upload/About + palette.
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from './Icon.vue'
 import { useTheme } from '@/composables/useTheme'
@@ -18,6 +20,18 @@ function goHome() {
 
 function openPalette() {
   document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }))
+}
+
+const TABS = [
+  { name: 'browse', label: 'Browse', icon: 'books', match: ['browse', 'subject'] },
+  { name: 'search', label: 'Search', icon: 'search', match: ['search'] },
+  { name: 'upload', label: 'Upload', icon: 'upload', match: ['upload'] },
+  { name: 'about', label: 'About', icon: 'info', match: ['about'] },
+]
+const activeTab = computed(() => TABS.find((t) => t.match.includes(route.name as string))?.name ?? null)
+
+function go(tab: (typeof TABS)[number]) {
+  router.push({ name: tab.name })
 }
 
 // Scroll-linked condensation — the toolbar tightens once content scrolls
@@ -74,7 +88,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
           <span class="palette-label">Search</span>
           <kbd class="palette-kbd"><Icon name="command" :size="10" />K</kbd>
         </button>
-        <button class="tool" @click="router.push('/about')" aria-label="About">
+        <button class="tool tool-about" @click="router.push('/about')" aria-label="About">
           <Icon name="info" :size="17" />
         </button>
         <button
@@ -87,6 +101,25 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
       </div>
     </div>
   </header>
+
+  <!-- Mobile bottom tab bar — padded, thumb-reach navigation -->
+  <nav class="tabbar" aria-label="Primary">
+    <button
+      v-for="t in TABS"
+      :key="t.name"
+      class="tab"
+      :class="{ active: activeTab === t.name }"
+      :aria-current="activeTab === t.name ? 'page' : undefined"
+      @click="go(t)"
+    >
+      <Icon :name="t.icon" :size="21" />
+      <span class="tab-label">{{ t.label }}</span>
+    </button>
+    <button class="tab" :aria-label="'Open command palette (Ctrl+K)'" @click="openPalette">
+      <Icon name="command" :size="21" />
+      <span class="tab-label">Palette</span>
+    </button>
+  </nav>
 </template>
 
 <style scoped>
@@ -249,8 +282,8 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
 
 @media (max-width: 720px) {
   .bar {
-    height: 50px;
-    padding: 0 14px;
+    height: 52px;
+    padding: 0 18px;
     gap: 8px;
   }
   .brand-name,
@@ -264,11 +297,68 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
   .palette-kbd {
     display: none;
   }
+  /* About lives in the bottom tab bar on mobile — don't duplicate it here */
+  .tool-about {
+    display: none;
+  }
   .palette-btn {
     padding: 0 8px;
   }
+  .tool {
+    height: 38px;
+    min-width: 38px;
+  }
   .bar.condensed {
-    height: 44px;
+    height: 46px;
+  }
+}
+
+/* ============ Mobile bottom tab bar ============ */
+.tabbar {
+  display: none;
+}
+@media (max-width: 720px) {
+  .tabbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 55;
+    display: flex;
+    align-items: stretch;
+    gap: 2px;
+    /* generous padding: 10px top, safe-area floor, 8px sides */
+    padding: 10px 8px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: var(--material-strong);
+    -webkit-backdrop-filter: var(--blur-strong);
+    backdrop-filter: var(--blur-strong);
+    border-top: var(--hairline);
+  }
+  .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 7px 2px 5px;
+    border-radius: var(--r-md);
+    color: var(--text-tertiary);
+    transition:
+      color var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-spring);
+  }
+  .tab:active {
+    transform: scale(0.94);
+  }
+  .tab.active {
+    color: var(--text-primary);
+    background: var(--paper-2);
+  }
+  .tab-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
   }
 }
 </style>

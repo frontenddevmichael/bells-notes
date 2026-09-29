@@ -405,7 +405,7 @@ const isLoading = computed(() => drive.loading && drive.papers.length === 0)
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  padding: var(--banner-h) 40px 20px;
+  padding: 40px 40px 20px;
   background: var(--bg);
 }
 
@@ -1108,7 +1108,7 @@ html.dark .footprint-item + .footprint-item {
    ============================================================ */
 @media (max-width: 900px) {
   .home {
-    padding: calc(var(--banner-h) + 4px) 20px 14px;
+    padding: 24px 20px 14px;
   }
   .hero {
     padding: 8px 20px;
