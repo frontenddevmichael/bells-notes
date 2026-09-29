@@ -400,7 +400,8 @@ const isLoading = computed(() => drive.loading && drive.papers.length === 0)
    ============================================================ */
 .home {
   position: relative;
-  height: 100dvh;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -493,14 +494,19 @@ html.dark .glass-zone .footprint-item + .footprint-item {
 /* Hero — top band of the fixed viewport; search docks right of the book zone */
 .hero {
   position: relative;
-  z-index: 1;
+  /* z-2: the autocomplete dropdown OVERFLOWS the hero band into the bento
+     section's area — equal z would let the later-in-DOM section glass paint
+     OVER the dropdown (see-through suggestions). Hero wins the tie. */
+  z-index: 2;
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   /* Same horizontal padding recipe as .section so hero + glass zones
-     share ONE column (title/search align with the cards below). */
-  padding: clamp(40px, 8.5vh, 80px) 32px 0 calc(32px + clamp(0px, 18vw, 220px));
+     share ONE column. Asymmetric on purpose: the book-zone offset is
+     smaller on the left than the 82px right pad, shifting the whole
+     column ~50px LEFT of true center (moon art owns the top-right). */
+  padding: clamp(40px, 8.5vh, 80px) 82px 0 calc(32px + clamp(0px, 14vw, 170px));
   width: 100%;
 }
 .hero-inner {
@@ -658,13 +664,17 @@ html.dark .search-dock {
 .section {
   position: relative;
   z-index: 1;
-  padding: 0 32px 0 calc(32px + clamp(0px, 18vw, 220px));
+  /* Left offset smaller than right pad → shared column sits ~50px left
+     of center (matches .hero; see note there). */
+  padding: 0 82px 0 calc(32px + clamp(0px, 14vw, 170px));
   margin-top: auto;
 }
 /* :first-of-type can't be used here — .hero is the first <section>,
-   so the bento zone is never first-of-type. Explicit class instead. */
+   so the bento zone is never first-of-type. Explicit class instead.
+   (padding-top removed when the footer joined the viewport — the two
+   auto margins alone now read visually even.) */
 .section-start {
-  padding-top: 20px;
+  padding-top: 0;
 }
 .glass-zone + .glass-zone {
   margin-top: auto;

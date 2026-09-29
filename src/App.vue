@@ -17,8 +17,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <!-- Home is a fixed-viewport screen (100dvh, no scroll): banner/footer are
-       excluded there — the nav floats over the hero art instead. -->
+  <!-- Home is a fixed-viewport screen: the nav floats over the hero art and
+       the screen flexes to fill the space above the footer. -->
   <div class="app-shell">
     <AppBanner v-if="route.path !== '/'" />
     <TopStrip />
@@ -34,7 +34,7 @@ onMounted(() => {
       </main>
     </Transition>
   </RouterView>
-  <AppFooter v-if="route.path !== '/'" />
+  <AppFooter />
   </div>
   <CommandPalette />
 </template>
@@ -53,7 +53,15 @@ onMounted(() => {
 /* Gap between content and footer — off on Home (fixed viewport, no footer,
    .home must stay exactly 100dvh). */
 .app-shell > main:not(.is-home) {
-  padding-bottom: 72px;
+  /* 52px here + footer's 20px margin-top = the 72px content↔footer rhythm.
+     Home (footer sits inside the fixed screen) uses only the footer margin. */
+  padding-bottom: 52px;
+}
+/* Home: main is the flex frame between nav and footer; .home fills it. */
+.app-shell > main.is-home {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0;
 }
 .page-enter-active {
   transition:

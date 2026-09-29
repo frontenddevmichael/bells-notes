@@ -214,6 +214,11 @@ function openPaper(p: Paper) {
   grid-template-columns: repeat(4, 1fr);
   gap: 32px;
 }
+/* Grid items default to min-width:auto — long unbreakable titles force
+   tracks wider than the container (page overflowed ~173px on desktop). */
+.grid-4 > * {
+  min-width: 0;
+}
 .courses-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

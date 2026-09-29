@@ -47,6 +47,7 @@ const links: { label: string; to: string }[] = [
 .footer {
   background: var(--bg-default);
   border-top: 0.5px solid var(--rule);
+  margin-top: 20px;
 }
 .inner {
   max-width: var(--max-content);

@@ -355,6 +355,13 @@ html.dark .hero-glow {
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
 }
+/* Grid items default to min-width:auto — long college names force tracks
+   wider than the container (page overflowed ~93px at 375px). */
+.college-grid > *,
+.program-grid > *,
+.level-grid > * {
+  min-width: 0;
+}
 .college-card {
   display: flex;
   align-items: center;
